@@ -1,0 +1,78 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        applicationId "com.hua.rxandorid"
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        yiqixxxConfig {
+            storeFile file("yiqi.keystore")
+            storePassword "yiqixxx"
+            keyAlias "yiqi"
+            keyPassword "yiqixxx"
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.yiqixxxConfig
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            debuggable true
+            signingConfig signingConfigs.yiqixxxConfig
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    dataBinding {
+        enabled = true
+    }
+
+    productFlavors {
+        yin {
+            applicationId "com.yin"
+            versionName "1.0"
+            versionCode 1
+        }
+        hua {
+            applicationId "com.hua"
+        }
+    }
+
+    android.applicationVariants.all { variant ->
+        variant.assemble.doLast {
+            variant.outputs.each { output ->
+                println "aligned " + output.outputFile
+                println "unaligned " + output.packageApplication.outputFile
+                File unaligned = output.packageApplication.outputFile;
+                File aligned = output.outputFile
+                if (!unaligned.getName().equalsIgnoreCase(aligned.getName())) {
+                    println "deleting " + unaligned.getName()
+                    unaligned.delete()
+                }
+                def productName = variant.productFlavors[0].name;
+                println "product name=" + productName;
+//                    output.outputFile = new File(output.outputFile.parent, productName);
+            }
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.2.0'
+    compile project(":domain")
+}
